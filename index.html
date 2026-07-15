@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#090b0c">
+    <title>DA CHEF — поварские кители</title>
+    <meta
+      name="description"
+      content="Поварские кители DA CHEF: модели EDGE, DAILY и LINE. Выберите цвет, размер и оформите заявку онлайн."
+    >
+    <link rel="stylesheet" href="styles.css?v=20260713-1">
+    <script src="scripts/products.js?v=20260713-1" defer></script>
+    <script src="scripts/app.js?v=20260713-1" defer></script>
+  </head>
+  <body>
+    <header class="site-header" data-header>
+      <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu">
+        <span class="sr-only">Открыть меню</span>
+        <span></span><span></span>
+      </button>
+      <a class="brand brand-header" href="#top" aria-label="DA CHEF, на главную">
+        <img class="brand-image invert" src="assets/brand/da-chef-logo.svg" alt="DA CHEF">
+      </a>
+      <nav class="desktop-nav" aria-label="Основная навигация">
+        <a href="#catalog">Каталог</a>
+        <a href="#offers">Акции</a>
+        <a href="#sizes">Размеры</a>
+        <a href="#delivery">Доставка</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+      <button class="cart-trigger" type="button" data-open-cart aria-label="Открыть корзину">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2l2.2 10.5h9.4L20 8H7"/><circle cx="10" cy="19" r="1.3"/><circle cx="17" cy="19" r="1.3"/></svg>
+        <span class="cart-label">Корзина</span>
+        <span class="cart-count" data-cart-count>0</span>
+      </button>
+    </header>
+
+    <div class="mobile-menu" id="mobile-menu" data-mobile-menu hidden>
+      <nav aria-label="Мобильная навигация">
+        <a href="#catalog">Каталог</a>
+        <a href="#offers">Акции и условия</a>
+        <a href="#sizes">Размеры</a>
+        <a href="#delivery">Доставка</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+    </div>
+
+    <main id="top">
+      <section class="hero" aria-label="DA CHEF">
+        <picture class="hero-media">
+          <source media="(max-width: 719px)" srcset="assets/brand/hero-fire-noir-mobile.jpg">
+          <img class="hero-photo" src="assets/brand/hero-fire-noir-19x9.jpg" alt="Повар DA CHEF в белом кителе на профессиональной кухне">
+        </picture>
+        <div class="hero-smoke" aria-hidden="true"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Униформа для поваров / Ростов-на-Дону</p>
+          <h1>
+            <span class="hero-title-line">Кители для тех,</span>
+            <span class="hero-title-line">кто держит кухню в темпе.</span>
+          </h1>
+          <p class="hero-copy">Точный крой. Дышащая ткань. Форма, которая работает вместе с вами.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#catalog">Смотреть каталог</a>
+            <button class="button ghost" type="button" data-open-cart>Собрать заказ</button>
+          </div>
+          <p class="hero-price">Кители от <strong>4 000 ₽</strong></p>
+        </div>
+      </section>
+
+      <section class="catalog section" id="catalog" aria-labelledby="catalog-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow dark">Каталог</p>
+            <h2 id="catalog-title">Каталог DA CHEF</h2>
+          </div>
+          <p class="section-lead">Выберите цвет, ракурс и размер прямо в карточке.</p>
+        </div>
+        <div class="filters" data-filters aria-label="Фильтр каталога">
+          <button class="filter active" type="button" data-filter="jackets">Кители</button>
+          <button class="filter" type="button" data-filter="aprons">Фартуки</button>
+          <button class="filter" type="button" data-filter="pants">Брюки</button>
+          <button class="filter" type="button" data-filter="caps">Докеры</button>
+          <button class="filter" type="button" data-filter="all">Все товары</button>
+        </div>
+        <div class="product-grid" data-product-grid></div>
+      </section>
+
+      <section class="offers section dark-section" id="offers" aria-labelledby="offers-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Условия</p>
+            <h2 id="offers-title">Для команды и кухни</h2>
+          </div>
+          <p class="section-lead">Производство в Ростове-на-Дону. Доставка по России и миру.</p>
+        </div>
+        <div class="offer-grid" data-offers></div>
+        <div class="embroidery">
+          <div class="embroidery-copy">
+            <p class="eyebrow">Персонализация</p>
+            <h3>Вышивка логотипа для вашей команды</h3>
+            <p>Нанесение фирменной символики и именная вышивка для комплектов униформы.</p>
+          </div>
+          <a class="button ghost embroidery-button" href="#contacts">Обсудить заказ</a>
+        </div>
+      </section>
+
+      <section class="sizes section" id="sizes" aria-labelledby="sizes-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow dark">Размеры</p>
+            <h2 id="sizes-title">Размерная сетка</h2>
+          </div>
+          <p class="section-lead">Мужские размеры, сантиметры.</p>
+        </div>
+        <div class="size-table-wrap">
+          <table class="size-table">
+            <thead>
+              <tr><th>Размер</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>2XL</th><th>3XL</th><th>4XL</th></tr>
+            </thead>
+            <tbody>
+              <tr><th>Ширина плеч</th><td>50</td><td>50</td><td>53</td><td>55,5</td><td>56</td><td>57</td><td>58</td></tr>
+              <tr><th>Обхват груди</th><td>100</td><td>104</td><td>112</td><td>115</td><td>120</td><td>121</td><td>125</td></tr>
+              <tr><th>Обхват талии</th><td>94</td><td>97</td><td>106</td><td>110</td><td>114</td><td>116</td><td>121</td></tr>
+              <tr><th>Длина рукава</th><td>68</td><td>68</td><td>70</td><td>70</td><td>70</td><td>70</td><td>70</td></tr>
+              <tr><th>Длина по спине</th><td>78,5</td><td>79</td><td>81</td><td>81</td><td>82</td><td>82</td><td>82,5</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="delivery section dark-section" id="delivery" aria-labelledby="delivery-title">
+        <div class="delivery-copy">
+          <p class="eyebrow">Доставка и опт</p>
+          <h2 id="delivery-title">От одного кителя до формы всей команды.</h2>
+          <p>Оформите заявку в корзине. Менеджер подтвердит наличие, размерный ряд, вышивку и условия оптового заказа.</p>
+          <button class="button primary inverse" type="button" data-open-cart>Оформить заказ</button>
+        </div>
+        <div class="contacts" id="contacts">
+          <p class="eyebrow">Контакты</p>
+          <a href="https://instagram.com/dachef.shop" target="_blank" rel="noreferrer">Instagram: Dachef.shop</a>
+          <a href="https://vk.com/dachef.shop" target="_blank" rel="noreferrer">VK: Dachef.shop</a>
+          <a href="https://t.me/Dachef_shop" target="_blank" rel="noreferrer">Telegram: Dachef_shop</a>
+          <a href="tel:+79185089824">+7-918-508-98-24</a>
+          <a href="mailto:dachef.shop@yandex.ru">dachef.shop@yandex.ru</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <img class="footer-logo" src="assets/brand/da-chef-logo.svg" alt="DA CHEF">
+      <p>DA CHEF. Поварская форма.</p>
+    </footer>
+
+    <nav class="mobile-bar" aria-label="Быстрая навигация">
+      <a href="#catalog">Каталог</a>
+      <a href="#offers">Акции</a>
+      <button type="button" data-open-cart>Корзина <span data-cart-count>0</span></button>
+      <a href="#contacts">Контакты</a>
+    </nav>
+
+    <div class="overlay" data-overlay hidden></div>
+    <aside class="cart-drawer" data-cart-drawer aria-labelledby="cart-title" aria-hidden="true">
+      <div class="drawer-head">
+        <div>
+          <p class="eyebrow dark">Ваш заказ</p>
+          <h2 id="cart-title">Корзина</h2>
+        </div>
+        <button class="close-button" type="button" data-close-cart aria-label="Закрыть корзину">×</button>
+      </div>
+      <div class="cart-lines" data-cart-lines></div>
+      <div class="cart-summary" data-cart-summary></div>
+      <button class="button primary full" type="button" data-checkout>Оформить заказ</button>
+    </aside>
+
+    <section class="checkout-modal" data-checkout-modal aria-labelledby="checkout-title" aria-hidden="true" hidden>
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow dark">Заявка</p>
+          <h2 id="checkout-title">Оформить заказ</h2>
+        </div>
+        <button class="close-button" type="button" data-close-checkout aria-label="Закрыть форму">×</button>
+      </div>
+      <form class="checkout-form" data-checkout-form>
+        <label>Имя <input name="name" autocomplete="name" required></label>
+        <label>Телефон <input name="phone" type="tel" autocomplete="tel" required></label>
+        <label>Email <input name="email" type="email" autocomplete="email"></label>
+        <label>Дата рождения <input name="birthday" type="date" autocomplete="bday"></label>
+        <label>Telegram / WhatsApp <input name="messenger" autocomplete="off"></label>
+        <label>Город <input name="city" autocomplete="address-level2" required></label>
+        <label class="wide">Комментарий <textarea name="comment" rows="3"></textarea></label>
+        <label class="consent wide">
+          <input name="privacyConsent" type="checkbox" required>
+          <span>Согласен на обработку персональных данных для подготовки заявки.</span>
+        </label>
+        <div class="order-preview wide" data-order-preview></div>
+        <p class="mailto-note wide">Демо-версия: отправка заявки будет подключена после утверждения сайта.</p>
+        <button class="button primary full wide" type="submit">Посмотреть результат</button>
+      </form>
+      <div class="checkout-success" data-checkout-success hidden>
+        <h3>Демо оформления</h3>
+        <p>Заказ собран корректно. На рабочей версии здесь будет отправка заявки менеджеру DA CHEF.</p>
+        <button class="button ghost dark-button" type="button" data-close-checkout>Вернуться к корзине</button>
+      </div>
+    </section>
+
+    <div class="toast" data-toast role="status" aria-live="polite"></div>
+  </body>
+</html>
