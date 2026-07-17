@@ -138,21 +138,20 @@
     const colors = product.colors
       .map(
         (variant) => {
-          const disabled = Boolean(variant.comingSoon);
+          const comingSoon = Boolean(variant.comingSoon);
           return `
           <button
-            class="swatch ${choice.color === variant.id ? "active" : ""} ${disabled ? "coming-soon" : ""}"
+            class="swatch ${choice.color === variant.id ? "active" : ""} ${comingSoon ? "coming-soon" : ""}"
             type="button"
             data-action="color"
             data-product="${product.id}"
             data-color="${variant.id}"
-            aria-label="${variant.label}${disabled ? " — Coming soon" : ""}"
+            aria-label="${variant.label}${comingSoon ? " — скоро в продаже" : ""}"
             aria-pressed="${choice.color === variant.id}"
-            ${disabled ? "disabled" : ""}
           >
             <span class="swatch-dot" style="background:${variant.hex}"></span>
             ${variant.label}
-            ${disabled ? '<span class="soon-label">Coming soon</span>' : ""}
+            ${comingSoon ? '<span class="soon-label">Coming soon</span>' : ""}
           </button>
         `;
         }
@@ -212,11 +211,23 @@
               <output>${choice.quantity}</output>
               <button type="button" data-action="plus" data-product="${product.id}" aria-label="Увеличить">+</button>
             </div>
-            <button class="button add-button" type="button" data-action="add" data-product="${product.id}">
-              В корзину
+            <button
+              class="button add-button"
+              type="button"
+              data-action="add"
+              data-product="${product.id}"
+              ${color.comingSoon ? 'disabled aria-disabled="true"' : ""}
+            >
+              ${color.comingSoon ? "Скоро в продаже" : "В корзину"}
             </button>
           </div>
-          <p class="added-note">${choice.added ? "Добавлено в корзину" : promo}</p>
+          <p class="added-note">${
+            color.comingSoon
+              ? "Цвет доступен для просмотра, заказ пока закрыт"
+              : choice.added
+                ? "Добавлено в корзину"
+                : promo
+          }</p>
         </div>
       </article>
     `;

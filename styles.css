@@ -584,8 +584,7 @@ h3 {
 }
 
 .swatch.coming-soon {
-  cursor: not-allowed;
-  opacity: 0.68;
+  border-color: rgba(16, 19, 21, 0.16);
 }
 
 .soon-label {
@@ -677,6 +676,12 @@ h3 {
   color: var(--white);
   min-height: 48px;
   padding: 0 12px;
+}
+
+.add-button:disabled {
+  background: #d7d9da;
+  color: #565b5e;
+  opacity: 1;
 }
 
 .added-note {
