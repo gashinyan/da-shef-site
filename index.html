@@ -9,9 +9,9 @@
       name="description"
       content="Поварские кители DA CHEF: модели EDGE, DAILY и LINE. Выберите цвет, размер и оформите заявку онлайн."
     >
-    <link rel="stylesheet" href="styles.css?v=20260717-1">
-    <script src="scripts/products.js?v=20260717-1" defer></script>
-    <script src="scripts/app.js?v=20260717-1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20260718-1">
+    <script src="scripts/products.js?v=20260718-1" defer></script>
+    <script src="scripts/app.js?v=20260718-1" defer></script>
   </head>
   <body>
     <header class="site-header" data-header>
@@ -148,8 +148,18 @@
     </main>
 
     <footer class="footer">
-      <img class="footer-logo" src="assets/brand/da-chef-logo.svg" alt="DA CHEF">
-      <p>DA CHEF. Поварская форма.</p>
+      <div class="footer-brand">
+        <img class="footer-logo" src="assets/brand/da-chef-logo.svg" alt="DA CHEF">
+        <div>
+          <p>DA CHEF. Униформа для поваров.</p>
+          <p class="footer-requisites">ИП Одилов Алиджон Комилович · ИНН 616518853072 · ОГРНИП 325619600131877</p>
+        </div>
+      </div>
+      <nav class="footer-links" aria-label="Юридическая информация">
+        <a href="privacy.html">Политика обработки персональных данных</a>
+        <a href="personal-data-consent.html">Согласие на обработку данных</a>
+        <a href="marketing-consent.html">Согласие на поздравления и скидку</a>
+      </nav>
     </footer>
 
     <nav class="mobile-bar" aria-label="Быстрая навигация">
@@ -185,14 +195,19 @@
         <label>Имя <input name="name" autocomplete="name" required></label>
         <label>Телефон <input name="phone" type="tel" autocomplete="tel" required></label>
         <label>Email <input name="email" type="email" autocomplete="email"></label>
-        <label>Дата рождения <input name="birthday" type="date" autocomplete="bday"></label>
+        <label>Дата рождения (необязательно, для скидки) <input name="birthday" type="date" autocomplete="bday"></label>
         <label>Telegram / WhatsApp <input name="messenger" autocomplete="off"></label>
         <label>Город <input name="city" autocomplete="address-level2" required></label>
         <label class="wide">Комментарий <textarea name="comment" rows="3"></textarea></label>
         <label class="consent wide">
-          <input name="privacyConsent" type="checkbox" required>
-          <span>Согласен на обработку персональных данных для подготовки заявки.</span>
+          <input name="orderConsent" type="checkbox" required>
+          <span>Даю <a href="personal-data-consent.html" target="_blank" rel="noreferrer">согласие на обработку персональных данных</a> для подготовки и сопровождения заявки.</span>
         </label>
+        <label class="consent wide optional-consent">
+          <input name="marketingConsent" type="checkbox">
+          <span>Хочу получать поздравление и персональную скидку 10% ко дню рождения. При заполненной дате действует отдельное <a href="marketing-consent.html" target="_blank" rel="noreferrer">согласие на рекламные сообщения</a>.</span>
+        </label>
+        <p class="privacy-note wide">Подробнее: <a href="privacy.html" target="_blank" rel="noreferrer">Политика обработки персональных данных</a>. Согласие на поздравления добровольное и не влияет на оформление заказа.</p>
         <div class="order-preview wide" data-order-preview></div>
         <p class="mailto-note wide">Демо-версия: отправка заявки будет подключена после утверждения сайта.</p>
         <button class="button primary full wide" type="submit">Посмотреть результат</button>

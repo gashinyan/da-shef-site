@@ -20,6 +20,8 @@
   const toast = document.querySelector("[data-toast]");
   const menuToggle = document.querySelector("[data-menu-toggle]");
   const mobileMenu = document.querySelector("[data-mobile-menu]");
+  const birthdayInput = checkoutForm.elements.birthday;
+  const marketingConsent = checkoutForm.elements.marketingConsent;
 
   const state = {
     filter: "jackets",
@@ -441,6 +443,10 @@
       `Telegram / WhatsApp: ${formData.get("messenger").trim() || "не указан"}`,
       `Город: ${city}`,
       `Комментарий: ${formData.get("comment").trim() || "нет"}`,
+      `Согласие на обработку данных: ${config.personalDataConsentVersion}`,
+      formData.get("marketingConsent")
+        ? `Согласие на поздравления и скидку: ${config.marketingConsentVersion}`
+        : "Согласие на поздравления и скидку: не дано",
       "",
       "Состав заказа:",
       ...lines,
@@ -568,6 +574,27 @@
   document.querySelector("[data-close-cart]").addEventListener("click", closeCart);
   document.querySelector("[data-checkout]").addEventListener("click", openCheckout);
   document.querySelectorAll("[data-close-checkout]").forEach((button) => button.addEventListener("click", closeCheckout));
+
+  function syncBirthdayConsent() {
+    const hasBirthday = Boolean(birthdayInput.value);
+    const wantsBirthdayOffer = marketingConsent.checked;
+    marketingConsent.required = hasBirthday;
+    birthdayInput.required = wantsBirthdayOffer;
+    marketingConsent.setCustomValidity(
+      hasBirthday && !wantsBirthdayOffer
+        ? "Подтвердите согласие на поздравление и персональную скидку или очистите дату рождения."
+        : ""
+    );
+    birthdayInput.setCustomValidity(
+      wantsBirthdayOffer && !hasBirthday
+        ? "Укажите дату рождения или снимите согласие на поздравление и персональную скидку."
+        : ""
+    );
+  }
+
+  birthdayInput.addEventListener("input", syncBirthdayConsent);
+  marketingConsent.addEventListener("change", syncBirthdayConsent);
+  syncBirthdayConsent();
 
   overlay.addEventListener("click", () => {
     if (!checkoutModal.hidden) {

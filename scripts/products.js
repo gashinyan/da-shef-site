@@ -10,6 +10,8 @@
     orderEmail: "orders@example.com",
     // TODO: Set to "/api/order" when server-side order delivery is connected.
     orderEndpoint: "",
+    personalDataConsentVersion: "DA-CHEF-PD-2026-07-18",
+    marketingConsentVersion: "DA-CHEF-MARKETING-2026-07-18",
     discountThreshold: 25,
     discountRate: 0.15,
     embroideryGiftThreshold: 10,
