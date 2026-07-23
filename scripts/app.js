@@ -16,6 +16,8 @@
   const checkoutModal = document.querySelector("[data-checkout-modal]");
   const checkoutForm = document.querySelector("[data-checkout-form]");
   const checkoutSuccess = document.querySelector("[data-checkout-success]");
+  const checkoutError = document.querySelector("[data-checkout-error]");
+  const orderId = document.querySelector("[data-order-id]");
   const orderPreview = document.querySelector("[data-order-preview]");
   const toast = document.querySelector("[data-toast]");
   const menuToggle = document.querySelector("[data-menu-toggle]");
@@ -404,6 +406,8 @@
     }
     checkoutSuccess.hidden = true;
     checkoutForm.hidden = false;
+    checkoutError.hidden = true;
+    checkoutError.textContent = "";
     checkoutModal.hidden = false;
     checkoutModal.setAttribute("aria-hidden", "false");
     overlay.hidden = false;
@@ -419,55 +423,29 @@
     }
   }
 
-  function buildEmailBody(formData) {
-    const summary = calculateSummary();
-    const lines = state.cart.map((line) => {
-      const product = productById(line.productId);
-      const color = colorById(product, line.colorId);
-      return `- ${product.name}; цвет: ${color.label}; размер: ${line.size}; кол-во: ${line.quantity}; сумма: ${money(
-        product.price * line.quantity
-      )}`;
-    });
-    const city = formData.get("city").trim();
-    const deliveryNote =
-      /ростов/i.test(city) && summary.quantity >= config.rostovDeliveryThreshold
-        ? "Условие бесплатной доставки по Ростову-на-Дону выполнено."
-        : "Условия доставки требуется подтвердить.";
-    return [
-      "Новая заявка DA CHEF",
-      "",
-      `Имя: ${formData.get("name").trim()}`,
-      `Телефон: ${formData.get("phone").trim()}`,
-      `Email: ${formData.get("email").trim() || "не указан"}`,
-      `Дата рождения: ${formData.get("birthday").trim() || "не указана"}`,
-      `Telegram / WhatsApp: ${formData.get("messenger").trim() || "не указан"}`,
-      `Город: ${city}`,
-      `Комментарий: ${formData.get("comment").trim() || "нет"}`,
-      `Согласие на обработку данных: ${config.personalDataConsentVersion}`,
-      formData.get("marketingConsent")
-        ? `Согласие на поздравления и скидку: ${config.marketingConsentVersion}`
-        : "Согласие на поздравления и скидку: не дано",
-      "",
-      "Состав заказа:",
-      ...lines,
-      "",
-      `Подытог: ${money(summary.subtotal)}`,
-      summary.discount ? `Расчетная скидка до 15%: -${money(summary.discount)}` : "",
-      `Итого: ${money(summary.total)}`,
-      summary.hasEmbroideryGift ? "Именная вышивка: подарок от 10 комплектов." : "",
-      deliveryNote,
-      "",
-      "Пожалуйста, подтвердите наличие, условия скидки, вышивку и доставку.",
-    ]
-      .filter(Boolean)
-      .join("\n");
-  }
-
-  function buildMailto(formData) {
-    const name = formData.get("name").trim();
-    const subject = encodeURIComponent(`Заявка DA CHEF — ${name}`);
-    const body = encodeURIComponent(buildEmailBody(formData));
-    return `mailto:${config.orderEmail}?subject=${subject}&body=${body}`;
+  function buildOrderPayload(formData) {
+    return {
+      website: formData.get("website").trim(),
+      customer: {
+        name: formData.get("name").trim(),
+        phone: formData.get("phone").trim(),
+        email: formData.get("email").trim(),
+        birthday: formData.get("birthday").trim(),
+        messenger: formData.get("messenger").trim(),
+        city: formData.get("city").trim(),
+        comment: formData.get("comment").trim(),
+      },
+      items: state.cart.map((line) => ({
+        productId: line.productId,
+        colorId: line.colorId,
+        size: line.size,
+        quantity: line.quantity,
+      })),
+      consents: {
+        personalData: Boolean(formData.get("orderConsent")),
+        marketing: Boolean(formData.get("marketingConsent")),
+      },
+    };
   }
 
   function showToast(message) {
@@ -604,19 +582,36 @@
     closeCart();
   });
 
-  checkoutForm.addEventListener("submit", (event) => {
+  checkoutForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (config.demoMode) {
+    const formData = new FormData(checkoutForm);
+    const submitButton = checkoutForm.querySelector('button[type="submit"]');
+    const initialText = submitButton.textContent;
+    checkoutError.hidden = true;
+    checkoutError.textContent = "";
+    submitButton.disabled = true;
+    submitButton.textContent = "Отправляем...";
+    try {
+      const response = await fetch(config.orderEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildOrderPayload(formData)),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || "Не удалось отправить заявку");
+      }
+      orderId.textContent = result.orderId;
       checkoutForm.hidden = true;
       checkoutSuccess.hidden = false;
-      return;
+    } catch (error) {
+      checkoutError.textContent = `${error.message}. Попробуйте ещё раз или свяжитесь с нами по телефону.`;
+      checkoutError.hidden = false;
+      showToast("Заявка не отправлена");
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = initialText;
     }
-    const formData = new FormData(checkoutForm);
-    // TODO: Replace this mailto handoff with POST to config.orderEndpoint when the order API is ready.
-    const href = buildMailto(formData);
-    checkoutForm.hidden = true;
-    checkoutSuccess.hidden = false;
-    window.location.href = href;
   });
 
   menuToggle.addEventListener("click", () => {
@@ -646,7 +641,7 @@
     }
   });
 
-  window.DaChefShop = { calculateSummary, buildMailto };
+  window.DaChefShop = { calculateSummary, buildOrderPayload };
 
   renderOffers();
   renderProducts();

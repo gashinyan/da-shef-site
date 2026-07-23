@@ -5,11 +5,7 @@
     Array.from({ length: count }, (_, index) => image(`${stem}-${index + 1}`));
 
   window.DA_CHEF_CONFIG = {
-    demoMode: true,
-    // TODO: Replace with the real order mailbox before publishing.
-    orderEmail: "orders@example.com",
-    // TODO: Set to "/api/order" when server-side order delivery is connected.
-    orderEndpoint: "",
+    orderEndpoint: "/api/order",
     personalDataConsentVersion: "DA-CHEF-PD-2026-07-18",
     marketingConsentVersion: "DA-CHEF-MARKETING-2026-07-18",
     discountThreshold: 25,

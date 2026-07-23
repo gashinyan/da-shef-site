@@ -1270,6 +1270,25 @@ h3 {
   line-height: 1.45;
 }
 
+.honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+.checkout-error {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #9f3939;
+  border-radius: 10px;
+  color: #7b1717;
+  background: #fff2f2;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 .checkout-success {
   padding: 18px 0;
 }

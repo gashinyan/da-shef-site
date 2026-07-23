@@ -1,0 +1,14 @@
+{
+  "name": "da-chef-shop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check server.mjs && node --check scripts/products.js && node --check scripts/app.js"
+  }
+}

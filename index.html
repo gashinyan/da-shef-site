@@ -192,6 +192,7 @@
         <button class="close-button" type="button" data-close-checkout aria-label="Закрыть форму">×</button>
       </div>
       <form class="checkout-form" data-checkout-form>
+        <label class="honeypot" aria-hidden="true">Сайт <input name="website" tabindex="-1" autocomplete="off"></label>
         <label>Имя <input name="name" autocomplete="name" required></label>
         <label>Телефон <input name="phone" type="tel" autocomplete="tel" required></label>
         <label>Email <input name="email" type="email" autocomplete="email"></label>
@@ -209,12 +210,13 @@
         </label>
         <p class="privacy-note wide">Подробнее: <a href="privacy.html" target="_blank" rel="noreferrer">Политика обработки персональных данных</a>. Согласие на поздравления добровольное и не влияет на оформление заказа.</p>
         <div class="order-preview wide" data-order-preview></div>
-        <p class="mailto-note wide">Демо-версия: отправка заявки будет подключена после утверждения сайта.</p>
-        <button class="button primary full wide" type="submit">Посмотреть результат</button>
+        <p class="mailto-note wide">После отправки заявка сохранится на российском сервере. Менеджер свяжется с вами для подтверждения наличия, доставки и итоговой стоимости.</p>
+        <p class="checkout-error wide" data-checkout-error role="alert" hidden></p>
+        <button class="button primary full wide" type="submit">Отправить заявку</button>
       </form>
       <div class="checkout-success" data-checkout-success hidden>
-        <h3>Демо оформления</h3>
-        <p>Заказ собран корректно. На рабочей версии здесь будет отправка заявки менеджеру DA CHEF.</p>
+        <h3>Заявка принята</h3>
+        <p>Номер заявки: <strong data-order-id></strong>. Сохраните его до звонка менеджера DA CHEF.</p>
         <button class="button ghost dark-button" type="button" data-close-checkout>Вернуться к корзине</button>
       </div>
     </section>
