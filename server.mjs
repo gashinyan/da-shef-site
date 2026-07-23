@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { createReadStream } from "node:fs";
-import { access, mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
+import { access, chmod, mkdir, readFile, readdir, rename, stat, writeFile } from "node:fs/promises";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -261,9 +261,15 @@ function orderFile(dataDir, id) {
   return resolve(dataDir, "orders", `${id}.json`);
 }
 
-async function saveNewOrder(dataDir, order) {
+async function ensureOrderDirectory(dataDir) {
   const directory = resolve(dataDir, "orders");
   await mkdir(directory, { recursive: true, mode: 0o700 });
+  await chmod(directory, 0o700);
+  return directory;
+}
+
+async function saveNewOrder(dataDir, order) {
+  await ensureOrderDirectory(dataDir);
   await writeFile(orderFile(dataDir, order.id), `${JSON.stringify(order, null, 2)}\n`, { encoding: "utf8", flag: "wx", mode: 0o600 });
 }
 
@@ -278,8 +284,7 @@ async function readOrder(dataDir, id) {
 }
 
 async function listOrders(dataDir) {
-  const directory = resolve(dataDir, "orders");
-  await mkdir(directory, { recursive: true, mode: 0o700 });
+  const directory = await ensureOrderDirectory(dataDir);
   const files = (await readdir(directory)).filter((name) => /^DC-\d{8}-[A-F0-9]{6}\.json$/.test(name));
   const orders = await Promise.all(
     files.map(async (name) => {
@@ -550,6 +555,7 @@ export function createShopServer(overrides = {}) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const { server, config } = createShopServer();
+  await ensureOrderDirectory(config.dataDir);
   server.listen(config.port, "0.0.0.0", () => {
     console.log(`DA CHEF listening on port ${config.port}; orders=${config.orderEnabled ? "enabled" : "disabled"}`);
   });

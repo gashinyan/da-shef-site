@@ -12,7 +12,7 @@ COPY --chown=node:node index.html styles.css privacy.html personal-data-consent.
 COPY --chown=node:node assets ./public/assets
 COPY --chown=node:node scripts ./public/scripts
 
-RUN mkdir -p /data/orders && chown -R node:node /data
+RUN mkdir -p /data/orders && chmod 700 /data/orders && chown -R node:node /data
 
 USER node
 
