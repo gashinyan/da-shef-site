@@ -16,7 +16,7 @@ const validPayload = {
     city: "Ростов-на-Дону",
     comment: "Позвонить после 12:00",
   },
-  items: [{ productId: "edge", colorId: "black", size: "M", quantity: 2 }],
+  items: [{ productId: "edge", variantId: "long", colorId: "black", size: "M", quantity: 2 }],
   consents: { personalData: true, marketing: false },
 };
 
@@ -74,6 +74,8 @@ test("creates, persists and manages an order", async (t) => {
   assert.equal(stored.summary.subtotal, 12000);
   assert.equal(stored.summary.discount, 0);
   assert.equal(stored.summary.total, 12000);
+  assert.equal(stored.items[0].variantId, "long");
+  assert.equal(stored.items[0].variantLabel, "Длинный рукав");
   assert.equal(stored.consents.personalDataVersion, "DA-CHEF-PD-2026-07-18");
 
   const unauthorized = await fetch(`${app.baseUrl}/admin/orders`);
@@ -81,7 +83,9 @@ test("creates, persists and manages an order", async (t) => {
 
   const admin = await fetch(`${app.baseUrl}/admin/orders`, { headers: { Authorization: basicAuth() } });
   assert.equal(admin.status, 200);
-  assert.match(await admin.text(), new RegExp(result.orderId));
+  const adminHtml = await admin.text();
+  assert.match(adminHtml, new RegExp(result.orderId));
+  assert.match(adminHtml, /Новая/);
 
   const status = await fetch(`${app.baseUrl}/admin/orders/${result.orderId}/status`, {
     method: "POST",
@@ -108,6 +112,17 @@ test("rejects coming-soon products and inconsistent birthday consent", async (t)
   assert.equal(colorResponse.status, 422);
   assert.match((await colorResponse.json()).error, /пока нельзя заказать/);
 
+  const unavailableCombination = structuredClone(validPayload);
+  unavailableCombination.items[0].variantId = "short";
+  unavailableCombination.items[0].colorId = "navy";
+  const combinationResponse = await fetch(`${app.baseUrl}/api/order`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(unavailableCombination),
+  });
+  assert.equal(combinationResponse.status, 422);
+  assert.match((await combinationResponse.json()).error, /Недоступный цвет/);
+
   const birthday = structuredClone(validPayload);
   birthday.customer.birthday = "1990-05-10";
   const birthdayResponse = await fetch(`${app.baseUrl}/api/order`, {
@@ -117,6 +132,24 @@ test("rejects coming-soon products and inconsistent birthday consent", async (t)
   });
   assert.equal(birthdayResponse.status, 422);
   assert.match((await birthdayResponse.json()).error, /отдельное согласие/);
+});
+
+test("accepts and labels the short-sleeve EDGE variant", async (t) => {
+  const app = await start();
+  t.after(app.close);
+  const shortSleeve = structuredClone(validPayload);
+  shortSleeve.items[0] = { productId: "edge", variantId: "short", colorId: "white", size: "L", quantity: 1 };
+
+  const response = await fetch(`${app.baseUrl}/api/order`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(shortSleeve),
+  });
+  assert.equal(response.status, 201);
+  const { orderId } = await response.json();
+  const stored = JSON.parse(await readFile(join(app.dataDir, "orders", `${orderId}.json`), "utf8"));
+  assert.equal(stored.items[0].variantId, "short");
+  assert.equal(stored.items[0].variantLabel, "Короткий рукав");
 });
 
 test("does not store honeypot submissions", async (t) => {

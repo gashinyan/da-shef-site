@@ -560,10 +560,28 @@ h3 {
 }
 
 .swatches,
-.sizes-list {
+.sizes-list,
+.sleeve-list {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
+}
+
+.sleeve-chip {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--black);
+  font-size: 12px;
+  min-height: 36px;
+  padding: 0 14px;
+}
+
+.sleeve-chip:hover,
+.sleeve-chip.active {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
 }
 
 .swatch {
@@ -997,6 +1015,7 @@ h3 {
 
 .cart-variants {
   display: flex;
+  flex-wrap: wrap;
   gap: 7px;
   margin-top: 9px;
 }
@@ -1008,6 +1027,12 @@ h3 {
   font-size: 12px;
   max-width: 112px;
   padding: 6px;
+}
+
+.cart-variant-label {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 6px;
 }
 
 .cart-line-footer {

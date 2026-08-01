@@ -29,17 +29,19 @@
     filter: "jackets",
     cart: loadCart(),
     selections: Object.fromEntries(
-      products.map((product) => [
-        product.id,
-        {
-          color: (product.colors.find((color) => !color.comingSoon) || product.colors[0]).id,
+      products.map((product) => {
+        const variant = product.variants?.[0] || null;
+        const colors = variant?.colors || product.colors;
+        return [product.id, {
+          variant: variant?.id || null,
+          color: (colors.find((color) => !color.comingSoon) || colors[0]).id,
           size: product.sizes.length === 1 ? product.sizes[0] : "",
           quantity: 1,
           image: 0,
           invalid: false,
           added: false,
-        },
-      ])
+        }];
+      })
     ),
   };
 
@@ -51,8 +53,18 @@
     return products.find((product) => product.id === id);
   }
 
-  function colorById(product, id) {
-    return product.colors.find((color) => color.id === id) || product.colors[0];
+  function variantById(product, id) {
+    if (!product.variants) return null;
+    return product.variants.find((variant) => variant.id === id) || product.variants[0];
+  }
+
+  function colorsFor(product, variantId) {
+    return variantById(product, variantId)?.colors || product.colors;
+  }
+
+  function colorById(product, id, variantId = null) {
+    const colors = colorsFor(product, variantId);
+    return colors.find((color) => color.id === id) || colors[0];
   }
 
   function loadCart() {
@@ -61,15 +73,24 @@
       if (!Array.isArray(stored)) {
         return [];
       }
-      return stored.filter((line) => {
-        const product = productById(line.productId);
-        return (
-          product &&
-          product.colors.some((color) => color.id === line.colorId && !color.comingSoon) &&
-          product.sizes.includes(line.size) &&
-          line.quantity > 0
-        );
-      });
+      return stored
+        .map((line) => {
+          const product = productById(line.productId);
+          if (!product) return null;
+          const variant = product.variants ? variantById(product, line.variantId) : null;
+          return { ...line, variantId: variant?.id || null };
+        })
+        .filter((line) => {
+          if (!line) return false;
+          const product = productById(line.productId);
+          return (
+            colorsFor(product, line.variantId).some(
+              (color) => color.id === line.colorId && !color.comingSoon
+            ) &&
+            product.sizes.includes(line.size) &&
+            line.quantity > 0
+          );
+        });
     } catch (_error) {
       return [];
     }
@@ -123,8 +144,26 @@
 
   function productCard(product) {
     const choice = state.selections[product.id];
-    const color = colorById(product, choice.color);
+    const selectedVariant = variantById(product, choice.variant);
+    const availableColors = colorsFor(product, choice.variant);
+    const color = colorById(product, choice.color, choice.variant);
     const promo = productPromo(choice.quantity);
+    const variants = product.variants
+      ? product.variants
+          .map(
+            (variant) => `
+              <button
+                class="sleeve-chip ${choice.variant === variant.id ? "active" : ""}"
+                type="button"
+                data-action="variant"
+                data-product="${product.id}"
+                data-variant="${variant.id}"
+                aria-pressed="${choice.variant === variant.id}"
+              >${variant.label}</button>
+            `
+          )
+          .join("")
+      : "";
     const sizes = product.sizes
       .map(
         (size) => `
@@ -139,25 +178,25 @@
         `
       )
       .join("");
-    const colors = product.colors
+    const colors = availableColors
       .map(
-        (variant) => {
-          const comingSoon = Boolean(variant.comingSoon);
+        (colorOption) => {
+          const comingSoon = Boolean(colorOption.comingSoon);
           return `
-          <button
-            class="swatch ${choice.color === variant.id ? "active" : ""} ${comingSoon ? "coming-soon" : ""}"
-            type="button"
-            data-action="color"
-            data-product="${product.id}"
-            data-color="${variant.id}"
-            aria-label="${variant.label}${comingSoon ? " — скоро в продаже" : ""}"
-            aria-pressed="${choice.color === variant.id}"
-          >
-            <span class="swatch-dot" style="background:${variant.hex}"></span>
-            ${variant.label}
-            ${comingSoon ? '<span class="soon-label">Coming soon</span>' : ""}
-          </button>
-        `;
+            <button
+              class="swatch ${choice.color === colorOption.id ? "active" : ""} ${comingSoon ? "coming-soon" : ""}"
+              type="button"
+              data-action="color"
+              data-product="${product.id}"
+              data-color="${colorOption.id}"
+              aria-label="${colorOption.label}${comingSoon ? " — скоро в продаже" : ""}"
+              aria-pressed="${choice.color === colorOption.id}"
+            >
+              <span class="swatch-dot" style="background:${colorOption.hex}"></span>
+              ${colorOption.label}
+              ${comingSoon ? '<span class="soon-label">Coming soon</span>' : ""}
+            </button>
+          `;
         }
       )
       .join("");
@@ -182,7 +221,7 @@
           <img
             class="product-main-image"
             src="${color.images[choice.image]}"
-            alt="${product.name}, цвет ${color.label}"
+            alt="${product.name}${selectedVariant ? `, ${selectedVariant.label.toLowerCase()}` : ""}, цвет ${color.label}"
             loading="lazy"
           >
           <span class="product-category">${product.categoryLabel}</span>
@@ -197,6 +236,14 @@
             <p class="product-price">${money(product.price)}</p>
           </div>
           <p class="product-description">${product.description}</p>
+          ${
+            variants
+              ? `<div class="choice-group">
+                  <span class="choice-label">Рукав: ${selectedVariant.label}</span>
+                  <div class="sleeve-list">${variants}</div>
+                </div>`
+              : ""
+          }
           <div class="choice-group">
             <span class="choice-label">Цвет: ${color.label}</span>
             <div class="swatches">${colors}</div>
@@ -250,7 +297,7 @@
   function addLine(productId) {
     const product = productById(productId);
     const choice = state.selections[productId];
-    const color = colorById(product, choice.color);
+    const color = colorById(product, choice.color, choice.variant);
     if (color.comingSoon) {
       showToast("Синий цвет скоро появится");
       return;
@@ -262,13 +309,18 @@
       return;
     }
     const existing = state.cart.find(
-      (line) => line.productId === product.id && line.colorId === choice.color && line.size === choice.size
+      (line) =>
+        line.productId === product.id &&
+        line.variantId === choice.variant &&
+        line.colorId === choice.color &&
+        line.size === choice.size
     );
     if (existing) {
       existing.quantity += choice.quantity;
     } else {
       state.cart.push({
         productId: product.id,
+        variantId: choice.variant,
         colorId: choice.color,
         size: choice.size,
         quantity: choice.quantity,
@@ -286,7 +338,10 @@
     state.cart.forEach((line) => {
       const existing = merged.find(
         (candidate) =>
-          candidate.productId === line.productId && candidate.colorId === line.colorId && candidate.size === line.size
+          candidate.productId === line.productId &&
+          candidate.variantId === line.variantId &&
+          candidate.colorId === line.colorId &&
+          candidate.size === line.size
       );
       if (existing) {
         existing.quantity += line.quantity;
@@ -299,13 +354,23 @@
 
   function cartLine(line, index) {
     const product = productById(line.productId);
-    const color = colorById(product, line.colorId);
-    const colorOptions = product.colors
+    const selectedVariant = variantById(product, line.variantId);
+    const availableColors = colorsFor(product, line.variantId);
+    const color = colorById(product, line.colorId, line.variantId);
+    const variantOptions = product.variants
+      ? product.variants
+          .map(
+            (variant) =>
+              `<option value="${variant.id}" ${variant.id === line.variantId ? "selected" : ""}>${variant.label}</option>`
+          )
+          .join("")
+      : "";
+    const colorOptions = availableColors
       .map(
-        (variant) =>
-          `<option value="${variant.id}" ${variant.id === line.colorId ? "selected" : ""} ${
-            variant.comingSoon ? "disabled" : ""
-          }>${variant.label}${variant.comingSoon ? " — Coming soon" : ""}</option>`
+        (colorOption) =>
+          `<option value="${colorOption.id}" ${colorOption.id === line.colorId ? "selected" : ""} ${
+            colorOption.comingSoon ? "disabled" : ""
+          }>${colorOption.label}${colorOption.comingSoon ? " — Coming soon" : ""}</option>`
       )
       .join("");
     const sizeOptions = product.sizes
@@ -320,9 +385,15 @@
             <button class="remove" type="button" data-cart-action="remove" data-index="${index}">Удалить</button>
           </div>
           <div class="cart-variants">
+            ${
+              variantOptions
+                ? `<select data-cart-action="variant" data-index="${index}" aria-label="Рукав">${variantOptions}</select>`
+                : ""
+            }
             <select data-cart-action="color" data-index="${index}" aria-label="Цвет">${colorOptions}</select>
             <select data-cart-action="size" data-index="${index}" aria-label="Размер">${sizeOptions}</select>
           </div>
+          ${selectedVariant ? `<p class="cart-variant-label">${selectedVariant.label}</p>` : ""}
           <div class="cart-line-footer">
             <div class="mini-quantity">
               <button type="button" data-cart-action="minus" data-index="${index}" aria-label="Уменьшить">−</button>
@@ -376,8 +447,9 @@
     const lines = state.cart
       .map((line) => {
         const product = productById(line.productId);
-        const color = colorById(product, line.colorId);
-        return `${product.name} / ${color.label} / ${line.size} × ${line.quantity} — ${money(product.price * line.quantity)}`;
+        const variant = variantById(product, line.variantId);
+        const color = colorById(product, line.colorId, line.variantId);
+        return `${product.name}${variant ? ` / ${variant.label}` : ""} / ${color.label} / ${line.size} × ${line.quantity} — ${money(product.price * line.quantity)}`;
       })
       .join("<br>");
     orderPreview.innerHTML = `<strong>Состав заказа</strong><br>${lines}<br><strong>Итого: ${money(summary.total)}</strong>`;
@@ -437,6 +509,7 @@
       },
       items: state.cart.map((line) => ({
         productId: line.productId,
+        variantId: line.variantId || undefined,
         colorId: line.colorId,
         size: line.size,
         quantity: line.quantity,
@@ -473,6 +546,15 @@
     const choice = state.selections[productId];
     choice.added = false;
     switch (button.dataset.action) {
+      case "variant": {
+        choice.variant = button.dataset.variant;
+        const colors = colorsFor(productById(productId), choice.variant);
+        if (!colors.some((color) => color.id === choice.color)) {
+          choice.color = (colors.find((color) => !color.comingSoon) || colors[0]).id;
+        }
+        choice.image = 0;
+        break;
+      }
       case "color":
         choice.color = button.dataset.color;
         choice.image = 0;
@@ -533,13 +615,21 @@
     }
     if (select.dataset.cartAction === "color") {
       const product = productById(line.productId);
-      const nextColor = colorById(product, select.value);
+      const nextColor = colorById(product, select.value, line.variantId);
       if (nextColor.comingSoon) {
         select.value = line.colorId;
         showToast("Синий цвет скоро появится");
         return;
       }
       line.colorId = select.value;
+    }
+    if (select.dataset.cartAction === "variant") {
+      const product = productById(line.productId);
+      const nextVariant = variantById(product, select.value);
+      line.variantId = nextVariant.id;
+      const colors = colorsFor(product, line.variantId);
+      const currentColor = colors.find((color) => color.id === line.colorId && !color.comingSoon);
+      line.colorId = currentColor?.id || (colors.find((color) => !color.comingSoon) || colors[0]).id;
     }
     if (select.dataset.cartAction === "size") {
       line.size = select.value;

@@ -10,8 +10,32 @@ const SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "4XL"];
 const PERSONAL_DATA_VERSION = "DA-CHEF-PD-2026-07-18";
 const MARKETING_VERSION = "DA-CHEF-MARKETING-2026-07-18";
 const ORDER_STATUSES = new Set(["new", "confirmed", "in_progress", "completed", "cancelled"]);
+const ORDER_STATUS_LABELS = {
+  new: "Новая",
+  confirmed: "Подтверждена",
+  in_progress: "В работе",
+  completed: "Завершена",
+  cancelled: "Отменена",
+};
 const CATALOG = new Map([
-  ["edge", { name: "EDGE", price: 6000, sizes: SIZES, colors: { white: "Белый", navy: null, black: "Черный" } }],
+  [
+    "edge",
+    {
+      name: "EDGE",
+      price: 6000,
+      sizes: SIZES,
+      variants: {
+        long: {
+          label: "Длинный рукав",
+          colors: { navy: null, black: "Черный" },
+        },
+        short: {
+          label: "Короткий рукав",
+          colors: { white: "Белый", black: "Черный" },
+        },
+      },
+    },
+  ],
   ["daily", { name: "DAILY", price: 5000, sizes: SIZES, colors: { white: "Белый", navy: null, black: "Черный" } }],
   ["line", { name: "LINE", price: 4000, sizes: SIZES, colors: { white: "Белый", navy: null, black: "Черный" } }],
   ["apron", { name: "ФАРТУК", price: 2000, sizes: SIZES, colors: { white: "Белый", blue: "Синий", black: "Черный" } }],
@@ -198,14 +222,18 @@ function validateItems(input) {
   for (const line of input) {
     const product = CATALOG.get(line?.productId);
     if (!product) throw new HttpError(422, "В корзине найден неизвестный товар");
-    if (!Object.hasOwn(product.colors, line.colorId)) throw new HttpError(422, "Недоступный цвет товара");
-    const colorLabel = product.colors[line.colorId];
+    const variant = product.variants?.[line.variantId] || null;
+    if (product.variants && !variant) throw new HttpError(422, "Выберите вариант товара");
+    if (!product.variants && line.variantId) throw new HttpError(422, "Недоступный вариант товара");
+    const colors = variant?.colors || product.colors;
+    if (!Object.hasOwn(colors, line.colorId)) throw new HttpError(422, "Недоступный цвет товара");
+    const colorLabel = colors[line.colorId];
     if (!colorLabel) throw new HttpError(422, "Выбранный цвет пока нельзя заказать");
     if (!product.sizes.includes(line.size)) throw new HttpError(422, "Недоступный размер товара");
     if (!Number.isInteger(line.quantity) || line.quantity < 1 || line.quantity > 100) {
       throw new HttpError(422, "Некорректное количество товара");
     }
-    const key = `${line.productId}:${line.colorId}:${line.size}`;
+    const key = `${line.productId}:${line.variantId || ""}:${line.colorId}:${line.size}`;
     const existing = merged.get(key);
     if (existing) {
       existing.quantity += line.quantity;
@@ -214,6 +242,8 @@ function validateItems(input) {
       merged.set(key, {
         productId: line.productId,
         productName: product.name,
+        variantId: line.variantId || null,
+        variantLabel: variant?.label || null,
         colorId: line.colorId,
         colorLabel,
         size: line.size,
@@ -330,8 +360,7 @@ function adminShell(title, content) {
 }
 
 function statusOptions(selected) {
-  const labels = { new: "Новая", confirmed: "Подтверждена", in_progress: "В работе", completed: "Завершена", cancelled: "Отменена" };
-  return Object.entries(labels)
+  return Object.entries(ORDER_STATUS_LABELS)
     .map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`)
     .join("");
 }
@@ -340,13 +369,13 @@ function adminOrderCard(order, detailed = false) {
   const items = order.items
     .map(
       (item) =>
-        `<li>${escapeHtml(item.productName)} / ${escapeHtml(item.colorLabel)} / ${escapeHtml(item.size)} × ${item.quantity} — ${money(item.lineTotal)}</li>`
+        `<li>${escapeHtml(item.productName)}${item.variantLabel ? ` / ${escapeHtml(item.variantLabel)}` : ""} / ${escapeHtml(item.colorLabel)} / ${escapeHtml(item.size)} × ${item.quantity} — ${money(item.lineTotal)}</li>`
     )
     .join("");
   const details = detailed
     ? `<div class="contact"><span>Телефон: <a href="tel:${escapeHtml(order.customer.phone)}">${escapeHtml(order.customer.phone)}</a></span><span>Email: ${escapeHtml(order.customer.email || "не указан")}</span><span>Мессенджер: ${escapeHtml(order.customer.messenger || "не указан")}</span><span>Город: ${escapeHtml(order.customer.city)}</span><span>Дата рождения: ${escapeHtml(order.customer.birthday || "не указана")}</span><span>Комментарий: ${escapeHtml(order.customer.comment || "нет")}</span><span>Маркетинговое согласие: ${order.consents.marketing ? escapeHtml(order.consents.marketingVersion) : "нет"}</span></div>`
     : `<p class="muted">${escapeHtml(order.customer.city)} · ${escapeHtml(order.customer.phone)}</p>`;
-  return `<article class="card"><div class="order-head"><div><a href="/admin/orders/${encodeURIComponent(order.id)}"><strong>${escapeHtml(order.id)}</strong></a><p>${escapeHtml(order.customer.name)} · ${new Date(order.createdAt).toLocaleString("ru-RU", { timeZone: "Europe/Moscow" })}</p><span class="pill">${escapeHtml(order.status)}</span></div><form method="post" action="/admin/orders/${encodeURIComponent(order.id)}/status"><select name="status">${statusOptions(order.status)}</select> <button type="submit">Сохранить</button></form></div><ul class="items">${items}</ul><p><strong>Итого: ${money(order.summary.total)}</strong>${order.summary.discount ? ` · скидка ${money(order.summary.discount)}` : ""}</p>${details}</article>`;
+  return `<article class="card"><div class="order-head"><div><a href="/admin/orders/${encodeURIComponent(order.id)}"><strong>${escapeHtml(order.id)}</strong></a><p>${escapeHtml(order.customer.name)} · ${new Date(order.createdAt).toLocaleString("ru-RU", { timeZone: "Europe/Moscow" })}</p><span class="pill">${escapeHtml(ORDER_STATUS_LABELS[order.status] || order.status)}</span></div><form method="post" action="/admin/orders/${encodeURIComponent(order.id)}/status"><select name="status">${statusOptions(order.status)}</select> <button type="submit">Сохранить</button></form></div><ul class="items">${items}</ul><p><strong>Итого: ${money(order.summary.total)}</strong>${order.summary.discount ? ` · скидка ${money(order.summary.discount)}` : ""}</p>${details}</article>`;
 }
 
 function ordersCsv(orders) {
@@ -363,7 +392,12 @@ function ordersCsv(orders) {
       order.customer.messenger,
       order.customer.city,
       order.customer.birthday,
-      order.items.map((item) => `${item.productName}/${item.colorLabel}/${item.size} x${item.quantity}`).join("; "),
+      order.items
+        .map(
+          (item) =>
+            `${item.productName}${item.variantLabel ? `/${item.variantLabel}` : ""}/${item.colorLabel}/${item.size} x${item.quantity}`
+        )
+        .join("; "),
       order.summary.total,
     ]);
   }

@@ -1,6 +1,7 @@
 (function () {
   const SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "4XL"];
-  const image = (name) => `assets/products/${name}.jpg`;
+  const asset = (name) => `assets/products/${name}`;
+  const image = (name) => asset(`${name}.jpg`);
   const gallery = (stem, count = 4) =>
     Array.from({ length: count }, (_, index) => image(`${stem}-${index + 1}`));
 
@@ -21,15 +22,49 @@
       category: "jackets",
       categoryLabel: "Кители",
       subtitle: "Китель, как часть вкуса",
-      description: "Классическая форма с современной посадкой.",
+      description: "Рубашечная застежка и два варианта: длинный или короткий рукав.",
       price: 6000,
       sizes: SIZES,
       fabric: "95% хлопок, 5% эластан",
       features: ["Приталенный силуэт", "Дышащая ткань", "Свобода движения"],
-      colors: [
-        { id: "white", label: "Белый", hex: "#f6f5ef", images: gallery("daily-white") },
-        { id: "navy", label: "Синий", hex: "#19223f", images: gallery("daily-navy"), comingSoon: true },
-        { id: "black", label: "Черный", hex: "#121212", images: gallery("daily-black") },
+      variants: [
+        {
+          id: "long",
+          label: "Длинный рукав",
+          colors: [
+            {
+              id: "black",
+              label: "Черный",
+              hex: "#121212",
+              images: gallery("edge-long-black"),
+            },
+            {
+              id: "navy",
+              label: "Синий",
+              hex: "#19223f",
+              images: gallery("edge-long-navy"),
+              comingSoon: true,
+            },
+          ],
+        },
+        {
+          id: "short",
+          label: "Короткий рукав",
+          colors: [
+            {
+              id: "white",
+              label: "Белый",
+              hex: "#f6f5ef",
+              images: gallery("edge-short-white"),
+            },
+            {
+              id: "black",
+              label: "Черный",
+              hex: "#121212",
+              images: gallery("edge-short-black"),
+            },
+          ],
+        },
       ],
     },
     {
