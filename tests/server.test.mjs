@@ -152,6 +152,32 @@ test("accepts and labels the short-sleeve EDGE variant", async (t) => {
   assert.equal(stored.items[0].variantLabel, "Короткий рукав");
 });
 
+test("accepts and labels DAILY short and LINE long variants", async (t) => {
+  const app = await start();
+  t.after(app.close);
+  const sleeveVariants = structuredClone(validPayload);
+  sleeveVariants.items = [
+    { productId: "daily", variantId: "short", colorId: "black", size: "M", quantity: 1 },
+    { productId: "line", variantId: "long", colorId: "white", size: "L", quantity: 1 },
+  ];
+
+  const response = await fetch(`${app.baseUrl}/api/order`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(sleeveVariants),
+  });
+  assert.equal(response.status, 201);
+  const { orderId } = await response.json();
+  const stored = JSON.parse(await readFile(join(app.dataDir, "orders", `${orderId}.json`), "utf8"));
+  assert.deepEqual(
+    stored.items.map((item) => [item.productId, item.variantId, item.variantLabel]),
+    [
+      ["daily", "short", "Короткий рукав"],
+      ["line", "long", "Длинный рукав"],
+    ]
+  );
+});
+
 test("does not store honeypot submissions", async (t) => {
   const app = await start();
   t.after(app.close);

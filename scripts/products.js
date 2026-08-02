@@ -73,15 +73,46 @@
       category: "jackets",
       categoryLabel: "Кители",
       subtitle: "Свободно. Каждый день.",
-      description: "POLO форма для активной смены.",
+      description: "POLO форма для активной смены с длинным или коротким рукавом.",
       price: 5000,
       sizes: SIZES,
       fabric: "95% хлопок, 5% эластан",
       features: ["Приталенный силуэт", "Мягкий материал", "Эластичность"],
-      colors: [
-        { id: "white", label: "Белый", hex: "#f6f5ef", images: gallery("daily-white") },
-        { id: "navy", label: "Синий", hex: "#19223f", images: gallery("daily-navy"), comingSoon: true },
-        { id: "black", label: "Черный", hex: "#121212", images: gallery("daily-black") },
+      variants: [
+        {
+          id: "long",
+          label: "Длинный рукав",
+          colors: [
+            { id: "white", label: "Белый", hex: "#f6f5ef", images: gallery("daily-white") },
+            { id: "navy", label: "Синий", hex: "#19223f", images: gallery("daily-navy"), comingSoon: true },
+            { id: "black", label: "Черный", hex: "#121212", images: gallery("daily-black") },
+          ],
+        },
+        {
+          id: "short",
+          label: "Короткий рукав",
+          colors: [
+            {
+              id: "white",
+              label: "Белый",
+              hex: "#f6f5ef",
+              images: [
+                image("daily-short-white-5"),
+                image("daily-short-white-1"),
+                image("daily-short-white-2"),
+                image("daily-short-white-3"),
+              ],
+            },
+            {
+              id: "navy",
+              label: "Синий",
+              hex: "#19223f",
+              images: gallery("daily-short-navy"),
+              comingSoon: true,
+            },
+            { id: "black", label: "Черный", hex: "#121212", images: gallery("daily-short-black") },
+          ],
+        },
       ],
     },
     {
@@ -90,20 +121,41 @@
       category: "jackets",
       categoryLabel: "Кители",
       subtitle: "Комфорт для тех, кто на линии",
-      description: "Базовая форма, которая должна быть в гардеробе.",
+      description: "Базовая форма с круглой горловиной и двумя вариантами рукава.",
       price: 4000,
       sizes: SIZES,
       fabric: "95% хлопок, 5% эластан",
       features: ["Мягкий материал", "Дышащая ткань", "Свобода движения"],
-      colors: [
+      variants: [
         {
-          id: "white",
-          label: "Белый",
-          hex: "#f6f5ef",
-          images: [image("line-white-3"), image("line-white-1"), image("line-white-2"), image("line-white-4")],
+          id: "short",
+          label: "Короткий рукав",
+          colors: [
+            {
+              id: "white",
+              label: "Белый",
+              hex: "#f6f5ef",
+              images: [image("line-white-3"), image("line-white-1"), image("line-white-2"), image("line-white-4")],
+            },
+            { id: "navy", label: "Синий", hex: "#19223f", images: gallery("line-navy"), comingSoon: true },
+            { id: "black", label: "Черный", hex: "#121212", images: gallery("line-black") },
+          ],
         },
-        { id: "navy", label: "Синий", hex: "#19223f", images: gallery("line-navy"), comingSoon: true },
-        { id: "black", label: "Черный", hex: "#121212", images: gallery("line-black") },
+        {
+          id: "long",
+          label: "Длинный рукав",
+          colors: [
+            { id: "white", label: "Белый", hex: "#f6f5ef", images: gallery("line-long-white") },
+            {
+              id: "navy",
+              label: "Синий",
+              hex: "#19223f",
+              images: gallery("line-long-navy"),
+              comingSoon: true,
+            },
+            { id: "black", label: "Черный", hex: "#121212", images: gallery("line-long-black") },
+          ],
+        },
       ],
     },
     {

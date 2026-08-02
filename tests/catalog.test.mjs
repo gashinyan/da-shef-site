@@ -27,14 +27,20 @@ test("all catalog galleries point to existing local images", async () => {
   }
 });
 
-test("EDGE uses shirt galleries and exposes both sleeve variants", async () => {
+test("all jacket models expose long and short sleeve variants", async () => {
   const products = await loadCatalog();
+  for (const productId of ["edge", "daily", "line"]) {
+    const product = products.find((candidate) => candidate.id === productId);
+    assert.deepEqual(new Set(Array.from(product.variants, (variant) => variant.id)), new Set(["long", "short"]));
+    const navyColors = product.variants.flatMap((variant) => variant.colors).filter((color) => color.id === "navy");
+    assert.ok(navyColors.length >= 1);
+    assert.ok(navyColors.every((color) => color.comingSoon === true));
+  }
+
   const edge = products.find((product) => product.id === "edge");
-  assert.deepEqual(
-    Array.from(edge.variants, (variant) => variant.id),
-    ["long", "short"]
-  );
   assert.ok(edge.variants.flatMap((variant) => variant.colors).every((color) => color.images.every((image) => !image.includes("daily-"))));
-  const navy = edge.variants.flatMap((variant) => variant.colors).find((color) => color.id === "navy");
-  assert.equal(navy.comingSoon, true);
+
+  const daily = products.find((product) => product.id === "daily");
+  const dailyShortWhite = daily.variants.find((variant) => variant.id === "short").colors.find((color) => color.id === "white");
+  assert.match(dailyShortWhite.images[0], /daily-short-white-5\.jpg$/);
 });

@@ -36,8 +36,42 @@ const CATALOG = new Map([
       },
     },
   ],
-  ["daily", { name: "DAILY", price: 5000, sizes: SIZES, colors: { white: "Белый", navy: null, black: "Черный" } }],
-  ["line", { name: "LINE", price: 4000, sizes: SIZES, colors: { white: "Белый", navy: null, black: "Черный" } }],
+  [
+    "daily",
+    {
+      name: "DAILY",
+      price: 5000,
+      sizes: SIZES,
+      variants: {
+        long: {
+          label: "Длинный рукав",
+          colors: { white: "Белый", navy: null, black: "Черный" },
+        },
+        short: {
+          label: "Короткий рукав",
+          colors: { white: "Белый", navy: null, black: "Черный" },
+        },
+      },
+    },
+  ],
+  [
+    "line",
+    {
+      name: "LINE",
+      price: 4000,
+      sizes: SIZES,
+      variants: {
+        short: {
+          label: "Короткий рукав",
+          colors: { white: "Белый", navy: null, black: "Черный" },
+        },
+        long: {
+          label: "Длинный рукав",
+          colors: { white: "Белый", navy: null, black: "Черный" },
+        },
+      },
+    },
+  ],
   ["apron", { name: "ФАРТУК", price: 2000, sizes: SIZES, colors: { white: "Белый", blue: "Синий", black: "Черный" } }],
   ["pants", { name: "ПОВАРСКИЕ БРЮКИ", price: 2500, sizes: SIZES, colors: { black: "Черный" } }],
   [
