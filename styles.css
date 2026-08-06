@@ -464,11 +464,15 @@ h3 {
 .product-gallery {
   background: #e1e4e5;
   position: relative;
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .product-main-image {
   aspect-ratio: 0.8;
+  -webkit-user-drag: none;
   object-fit: cover;
+  pointer-events: none;
   width: 100%;
 }
 

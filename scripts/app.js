@@ -217,7 +217,7 @@
 
     return `
       <article class="product-card" data-card="${product.id}">
-        <div class="product-gallery">
+        <div class="product-gallery" data-swipe-gallery>
           <img
             class="product-main-image"
             src="${color.images[choice.image]}"
@@ -535,6 +535,48 @@
     }
     state.filter = button.dataset.filter;
     renderProducts();
+  });
+
+  let gallerySwipe = null;
+
+  grid.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" || event.target.closest("button")) {
+      return;
+    }
+    const gallery = event.target.closest("[data-swipe-gallery]");
+    const card = gallery?.closest("[data-card]");
+    if (!card) {
+      return;
+    }
+    gallerySwipe = {
+      pointerId: event.pointerId,
+      productId: card.dataset.card,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+  });
+
+  grid.addEventListener("pointerup", (event) => {
+    if (!gallerySwipe || gallerySwipe.pointerId !== event.pointerId) {
+      return;
+    }
+    const swipe = gallerySwipe;
+    gallerySwipe = null;
+    const deltaX = event.clientX - swipe.startX;
+    const deltaY = event.clientY - swipe.startY;
+    if (Math.abs(deltaX) < 42 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+      return;
+    }
+    const product = productById(swipe.productId);
+    const choice = state.selections[swipe.productId];
+    const imageCount = colorById(product, choice.color, choice.variant).images.length;
+    const direction = deltaX < 0 ? 1 : -1;
+    choice.image = (choice.image + direction + imageCount) % imageCount;
+    renderProducts();
+  });
+
+  grid.addEventListener("pointercancel", () => {
+    gallerySwipe = null;
   });
 
   grid.addEventListener("click", (event) => {
